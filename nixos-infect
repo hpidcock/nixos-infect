@@ -279,10 +279,8 @@ prepareEnv() {
     for grubdev in /dev/vda /dev/sda /dev/xvda /dev/nvme0n1 ; do [[ -e $grubdev ]] && break; done
   fi
 
-  # Retrieve root fs block device
-  #                   (get root mount)  (get partition or logical volume)
-  rootfsdev=$(mount | grep "on / type" | awk '{print $1;}')
-  rootfstype=$(df $rootfsdev --output=fstype | sed 1d)
+  # Retrieve root fs block device from fstab
+  eval $(awk -F' ' '!/^#/ && $2 == "/" {print "rootfsdev=" $1 " rootfstype=" $3; exit}' /etc/fstab)
 
   # DigitalOcean doesn't seem to set USER while running user data
   export USER="root"
